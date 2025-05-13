@@ -1,7 +1,7 @@
-// script.js
 const colors = d3.schemeTableau10;
 const parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
 
+// 更新高亮函数，支持散点图和直方图双向淡出
 function highlightHistogramsFromScatter(selectedPoints) {
   const dimensionKeys = [
     { id: 'time-histogram', key: 'mealHour', precision: 1 },
@@ -20,16 +20,37 @@ function highlightHistogramsFromScatter(selectedPoints) {
     d3.selectAll(`#${dim.id} rect.hist`)
       .classed("dimmed", d => !binsToKeep.has(d.key));
   });
+  
+  // 淡出未选中的散点
+  d3.selectAll("#scatter-plot circle")
+    .classed("dimmed", d => !selectedPoints.some(sp => 
+      sp.time_begin === d.time_begin && sp.person === d.person
+    ));
 }
 
 function clearHistogramHighlighting() {
   d3.selectAll("rect.hist").classed("dimmed", false);
+  d3.selectAll("#scatter-plot circle").classed("dimmed", false);
 }
 
 const style = document.createElement('style');
 style.innerHTML = `
-  rect.hist.dimmed {
+  rect.hist.dimmed, circle.dimmed {
     fill-opacity: 0.2;
+    stroke-opacity: 0.2;
+  }
+  .tooltip rect {
+    fill: rgba(30, 30, 30, 0.95);
+    rx: 5;
+    ry: 5;
+  }
+  .tooltip text {
+    font-size: 11px;
+    fill: white;
+    pointer-events: none;
+  }
+  .tooltip tspan {
+    font-size: 11px;
   }
 `;
 document.head.appendChild(style);
@@ -52,12 +73,6 @@ const chartInstances = {
 };
 
 let allData = [];
-
-// Create tooltip dynamically
-const tooltip = d3.select("body")
-  .append("div")
-  .attr("class", "tooltip")
-  .style("opacity", 0);
 
 d3.csv("added_food.csv", row => {
   const parsedRow = {
@@ -92,9 +107,11 @@ d3.csv("added_food.csv", row => {
     d.total_fat = +d.fat_g || 0;
   });
 
-  const cw = document.getElementById('charts')?.clientWidth || 800;
-  const barW = (cw - 32) / 3, barH = 450;
+  const cw = document.querySelector('.chart-container')?.clientWidth || 1200;
+  const barW = (cw - 32) / 3, barH = 300; // Reduced height for histograms
+  const timeHistW = cw - 32, timeHistH = 300; // Wider time histogram
   const margin = { top: 20, right: 20, bottom: 40, left: 40 };
+  
 
   function filterData() {
     return allData.filter(d => {
@@ -136,7 +153,28 @@ d3.csv("added_food.csv", row => {
       g = svg.append("g")
         .attr("class", "scatter-group")
         .attr("transform", `translate(${marginScatter.left},${marginScatter.top})`);
+      
+      // 创建工具提示元素
+      const tooltip = g.append("g")
+        .attr("class", "tooltip")
+        .style("opacity", 0)
+        .style("pointer-events", "none");
+      
+      tooltip.append("rect")
+        .attr("rx", 5)
+        .attr("ry", 5)
+        .style("fill", "rgba(30,30,30,0.95)");
+      
+      tooltip.append("text")
+        .style("font-size", "11px")
+        .style("fill", "white")
+        .attr("dy", "1.2em")
+        .attr("dx", "0.5em");
     }
+
+    const tooltip = g.select(".tooltip");
+    const tooltipBg = tooltip.select("rect");
+    const tooltipText = tooltip.select("text");
   
     let xAxisGroup = g.select(".x-axis");
     if (xAxisGroup.empty()) {
@@ -170,7 +208,6 @@ d3.csv("added_food.csv", row => {
     xAxisGroup.transition().call(d3.axisBottom(x));
     yAxisGroup.transition().call(d3.axisLeft(y));
 
-    // Add axis labels
     g.select(".x-axis-label").remove();
     g.append("text")
       .attr("class", "x-axis-label")
@@ -195,60 +232,71 @@ d3.csv("added_food.csv", row => {
       .attr("cy", d => y(d.grow_in_glu))
       .attr("r", d => r(d.total_fat));
 
-    // Bind tooltip events to all circles (including enter and existing ones)
     const allCircles = circles.enter().append("circle")
       .attr("cx", d => x(d[selectedNutrient]))
       .attr("cy", d => y(d.grow_in_glu))
       .attr("r", d => r(d.total_fat))
       .attr("fill", "steelblue")
+      .on("mouseover", function(event, d) {
+        const textLines = [
+          `Calories: ${d.calorie}`,
+          `Total Carb: ${d.total_carb}g`,
+          `Fiber: ${d.fiber_g}g`,
+          `Sugar: ${d.sugar_g}g`,
+          `Protein: ${d.protein_g}g`,
+          `Fat: ${d.total_fat}g`,
+          `Glucose Δ: ${d.grow_in_glu.toFixed(1)}mg/dL`
+        ];
+        
+        // 更新工具提示内容
+        tooltipText.selectAll("tspan").remove();
+        textLines.forEach((line, i) => {
+          tooltipText.append("tspan")
+            .attr("x", 5)
+            .attr("dy", i ? "1.2em" : "0.3em")
+            .text(line);
+        });
+        
+        // 计算文本尺寸并调整背景
+        const bbox = tooltipText.node().getBBox();
+        const padding = { top: 5, right: 8, bottom: 5, left: 8 };
+        tooltipBg
+          .attr("width", bbox.width + padding.left + padding.right)
+          .attr("height", bbox.height + padding.top + padding.bottom)
+          .attr("x", bbox.x - padding.left)
+          .attr("y", bbox.y - padding.top);
+        
+        // 定位工具提示组（数据点右上方）
+        let tooltipX = x(d[selectedNutrient]) + 15;
+        let tooltipY = y(d.grow_in_glu) - bbox.height - padding.top - padding.bottom - 5;
+        
+        // 边界检查：确保工具提示在图表区域内
+        if (tooltipX + bbox.width + padding.left + padding.right > width) {
+          tooltipX = x(d[selectedNutrient]) - bbox.width - padding.left - padding.right - 15;
+        }
+        if (tooltipY < 0) {
+          tooltipY = y(d.grow_in_glu) + 15;
+        }
+        
+        tooltip
+          .attr("transform", `translate(${tooltipX},${tooltipY})`)
+          .style("opacity", 1);
+
+        // 确保工具提示在最上层
+        tooltip.raise();
+      })
+      .on("mouseout", function() {
+        tooltip.style("opacity", 0);
+      })
       .merge(circles);
 
-    // Bind hover events with debugging
-    allCircles
-      .on("mouseover", (event, d) => {
-        console.log("Mouseover triggered for data:", d); // Debug log
-        tooltip
-          .style("opacity", 1)
-          .html(`
-            <div>Calories: ${d.calorie}</div>
-            <div>Total Carb: ${d.total_carb} g</div>
-            <div>Fiber: ${d.fiber_g} g</div>
-            <div>Sugar: ${d.sugar_g} g</div>
-            <div>Protein: ${d.protein_g} g</div>
-            <div>Fat: ${d.total_fat} g</div>
-            <div>Δ Glucose: ${d.grow_in_glu.toFixed(1)} mg/dL</div>
-          `);
-
-        const tooltipWidth = tooltip.node().offsetWidth || 150; // Default width if not yet measured
-        const tooltipHeight = tooltip.node().offsetHeight || 100; // Default height if not yet measured
-        let xPos = event.pageX + 10;
-        let yPos = event.pageY - tooltipHeight - 10;
-
-        if (xPos + tooltipWidth > window.innerWidth) {
-          xPos = event.pageX - tooltipWidth - 10;
-        }
-        if (yPos < 0) {
-          yPos = event.pageY + 10;
-        }
-
-        tooltip
-          .style("left", xPos + "px")
-          .style("top", yPos + "px");
-      })
-      .on("mouseout", () => {
-        console.log("Mouseout triggered"); // Debug log
-        tooltip.style("opacity", 0);
-      });
-
-    // Add brush for scatter plot
     let brush = g.select(".brush");
     if (brush.empty()) {
       brush = g.append("g")
         .attr("class", "brush")
-        .lower(); // Lower brush to avoid interfering with circle events
+        .lower();
     }
 
-    // Define brush behavior
     const brushBehavior = d3.brush()
       .extent([[0, 0], [width, height]])
       .on("start brush end", brushed);
@@ -286,7 +334,6 @@ d3.csv("added_food.csv", row => {
       }
     }
 
-    // Clear brush on click outside selection
     svg.on("click", (event) => {
       if (event.target.tagName === "circle" || event.target.classList.contains("selection")) {
         return;

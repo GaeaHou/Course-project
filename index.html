@@ -3,105 +3,150 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Glucose Response Explorer</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Blood Glucose Study</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- 自定义 CSS -->
+  <link rel="stylesheet" href="style.css">
+  <!-- D3.js -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
-  <header>
-    <h1>Glucose Response Explorer</h1>
-    <button id="reset-filters">Reset Filters</button>
-  </header>
-
-  <div id="charts">
-    <div id="overview">
-      <div class="chart">
-        <h2>Dashboard Overview</h2>
-        <p>Explore how meal timing and nutrient composition affect 2-hour glucose increase.</p>
+  <!-- 导航栏 -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Blood Glucose Study</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#home">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#visualization">Visualization</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#about">About</a>
+          </li>
+        </ul>
       </div>
     </div>
+  </nav>
 
-    <div class="chart-row">
-      <div id="time-histogram" class="chart">
-        <h2>Meal Time (Hour)</h2>
-        <p>Number of meal events in each hour of the day.</p>
-        <div class="dc-chart"></div>
-      </div>
-      <div id="subject-select" class="chart">
-        <h2>Participant</h2>
-        <p>Filter to a single participant’s data.</p>
-        <div class="dc-chart"></div>
-      </div>
-      <div id="total-count" class="chart">
-        <h2>Event Count</h2>
-        <p>Total meals under current filters.</p>
-        <div class="dc-chart"></div>
+  <!-- Home 部分 -->
+  <section id="home" class="py-5">
+    <div class="container">
+      <h1 class="text-center mb-4">Blood Glucose and Nutrition Analysis</h1>
+      <p class="text-center lead">
+        Explore the relationship between blood glucose levels and nutritional components
+        for 16 subjects. Interact with the visualization below to gain insights.
+      </p>
+    </div>
+  </section>
+
+  <!-- Visualization 部分 -->
+  <section id="visualization" class="py-5 bg-light">
+    <div class="container">
+      <h2 class="text-center mb-4">Interactive Visualization</h2>
+      <div class="chart-container">
+        <!-- First row: Filters and time histogram -->
+        <div class="filter-row">
+          <div class="filter-box" id="subject-select">
+            <h3>Participant</h3>
+            <div class="dc-chart"></div>
+          </div>
+          <div class="filter-box" id="nutrient-select">
+            <h3>Select Nutrient</h3>
+            <select id="nutrientSelect" class="form-select">
+              <option value="sugar">Sugar</option>
+              <option value="total_carb">Total Carbohydrate</option>
+            </select>
+          </div>
+          <div class="filter-box" id="total-count">
+            <h3>Event Count</h3>
+            <div class="dc-chart"></div>
+          </div>
+        </div>
+        
+        <!-- Time histogram - wide and short -->
+        <div class="time-hist-container">
+          <div class="chart" id="time-histogram">
+            <h2>Meal Time (Hour)</h2>
+            <p>Number of meal events in each hour of the day.</p>
+            <div class="dc-chart"></div>
+          </div>
+        </div>
+      
+        <!-- Nutrient histograms in 2 rows of 3 columns -->
+        <div class="nutrient-grid">
+          <div class="chart" id="carb-histogram">
+            <h2>Carbs (10g bins)</h2>
+            <p>Distribution of carbohydrate intake per meal.</p>
+            <div class="dc-chart"></div>
+          </div>
+          <div class="chart" id="prot-histogram">
+            <h2>Protein (5g bins)</h2>
+            <p>Distribution of protein intake per meal.</p>
+            <div class="dc-chart"></div>
+          </div>
+          <div class="chart" id="fat-histogram">
+            <h2>Fat (5g bins)</h2>
+            <p>Distribution of fat intake per meal.</p>
+            <div class="dc-chart"></div>
+          </div>
+          <div class="chart" id="sugar-histogram">
+            <h2>Sugar (5g bins)</h2>
+            <p>Distribution of sugar intake per meal.</p>
+            <div class="dc-chart"></div>
+          </div>
+          <div class="chart" id="fiber-histogram">
+            <h2>Fiber (2g bins)</h2>
+            <p>Distribution of fiber intake per meal.</p>
+            <div class="dc-chart"></div>
+          </div>
+          <div class="chart" id="calorie-histogram">
+            <h2>Calories (100kcal bins)</h2>
+            <p>Distribution of total calories per meal.</p>
+            <div class="dc-chart"></div>
+          </div>
+        </div>
+      
+        <!-- Scatter plot at the bottom -->
+        <div class="scatter-container">
+          <div class="chart large" id="scatter-plot">
+            <h2>Carbs vs. 2-Hour Glucose Increase</h2>
+            <p>Each point: x = nutrient (g), y = glucose ↑ over 2 hours (mg/dL).</p>
+            <div class="dc-chart"></div>
+          </div>
+        </div>
       </div>
     </div>
+  </section>
 
-    <div class="chart-row">
-      <div id="carb-histogram" class="chart">
-        <h2>Carbs (10g bins)</h2>
-        <p>Distribution of carbohydrate intake per meal.</p>
-        <div class="dc-chart"></div>
-      </div>
-      <div id="prot-histogram" class="chart">
-        <h2>Protein (5g bins)</h2>
-        <p>Distribution of protein intake per meal.</p>
-        <div class="dc-chart"></div>
-      </div>
-      <div id="fat-histogram" class="chart">
-        <h2>Fat (5g bins)</h2>
-        <p>Distribution of fat intake per meal.</p>
-        <div class="dc-chart"></div>
-      </div>
+  <!-- About 部分 -->
+  <section id="about" class="py-5">
+    <div class="container">
+      <h2 class="text-center mb-4">About This Study</h2>
+      <p class="text-center lead">
+        This study analyzes data from 16 subjects to understand how dietary nutrients
+        affect blood glucose levels. The interactive chart allows you to explore correlations
+        between blood glucose and key nutrients like carbohydrates and proteins.
+      </p>
     </div>
+  </section>
 
-    <div class="chart-row">
-      <div id="sugar-histogram" class="chart">
-        <h2>Sugar (5g bins)</h2>
-        <p>Distribution of sugar intake per meal.</p>
-        <div class="dc-chart"></div>
-      </div>
-      <div id="fiber-histogram" class="chart">
-        <h2>Fiber (2g bins)</h2>
-        <p>Distribution of fiber intake per meal.</p>
-        <div class="dc-chart"></div>
-      </div>
-      <div id="calorie-histogram" class="chart">
-        <h2>Calories (100kcal bins)</h2>
-        <p>Distribution of total calories per meal.</p>
-        <div class="dc-chart"></div>
-      </div>
+  <!-- 页脚 -->
+  <footer class="bg-light py-3">
+    <div class="container text-center">
+      <p class="mb-0">© 2025 Blood Glucose Study. All rights reserved.</p>
     </div>
+  </footer>
 
-    <div class="chart-row">
-      <div id="scatter-plot" class="chart large">
-        <h2>Carbs vs. 2-Hour Glucose Increase</h2>
-        <p>Each point: x = nutrient (g), y = glucose ↑ over 2 hours (mg/dL).</p>
-        <div class="dc-chart"></div>
-      </div>
-    </div>
-
-    <div>
-      <label for="nutrientSelect">Select Nutrient: </label>
-      <select id="nutrientSelect">
-        <option value="sugar">Sugar</option>
-        <option value="total_carb">Total Carbohydrate</option>
-      </select>
-    </div>
-  </div>
-
-  <div id="nutrient-tooltip" class="tooltip">
-    <div id="tip-calorie"></div>
-    <div id="tip-total_carb"></div>
-    <div id="tip-dietary_fiber"></div>
-    <div id="tip-sugar"></div>
-    <div id="tip-protein"></div>
-    <div id="tip-total_fat"></div>
-    <div id="tip-grow_in_glu"></div>
-  </div>
-
-  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- 自定义 JS -->
   <script src="script.js"></script>
 </body>
 </html>

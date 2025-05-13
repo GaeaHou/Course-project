@@ -1,235 +1,361 @@
-/* 全局样式 */
+/* ==================== */
+/* ==== BASE STYLES ==== */
+/* ==================== */
+:root {
+  /* Color Variables */
+  --color-time: #4e79a7;
+  --color-carb: #f28e2b;
+  --color-prot: #e15759;
+  --color-fat: #76b7b2;
+  --color-sugar: #59a14f;
+  --color-fiber: #edc948;
+  --color-calorie: #b07aa1;
+  --bg-color: #f4f4f6;
+  --text-color: #333;
+  --card-bg: white;
+  --axis-color: #666;
+  --tooltip-bg: rgba(30, 30, 30, 0.95);
+  
+  /* Sizing Variables */
+  --border-radius: 8px;
+  --chart-gap: 1rem;
+  
+  /* Shadow Variables */
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-nav: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-footer: 0 -1px 3px rgba(0, 0, 0, 0.1);
+}
+
 body {
   font-family: 'Arial', sans-serif;
   margin: 0;
   padding: 0;
-  background: #f4f4f6;
+  background: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
 }
 
-/* 图表容器 */
-.chart-container {
-  max-width: 1200px; /* 增加最大宽度以容纳多列 */
+.container {
+  max-width: 1400px;
+  padding: 0 20px;
   margin: 0 auto;
 }
 
-/* 导航栏（适配Bootstrap） */
-.navbar {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-/* 部分样式 */
 section {
-  min-height: 400px;
+  padding: 2rem 0;
 }
 
-/* 图表区域 */
+/* ==================== */
+/* ==== TYPOGRAPHY ==== */
+/* ==================== */
+h1, h2, h3 {
+  color: #2c3e50;
+  margin-top: 0;
+}
+
+h1 {
+  font-size: 2.2rem;
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.lead {
+  font-size: 1.1rem;
+}
+
+/* ==================== */
+/* === NAVIGATION === */
+/* ==================== */
+.navbar {
+  box-shadow: var(--shadow-nav);
+  padding: 0.8rem 1rem;
+}
+
+.navbar-brand {
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+/* ==================== */
+/* === CHART LAYOUT === */
+/* ==================== */
 #charts {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem; /* 增加间距 */
-  padding: 1rem;
+  gap: 1.5rem;
+  margin-top: 1rem;
 }
 
-.chart-row {
+/* Control Row */
+.controls-row {
   display: flex;
-  gap: 1.5rem; /* 增加图表间距 */
-  flex-wrap: wrap; /* 响应式换行 */
-  justify-content: center; /* 居中对齐 */
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
+/* Nutrition Charts Grid */
+.chart-row.nutrition-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--chart-gap);
+  margin-bottom: 1.5rem;
+}
+
+/* Time Histogram - 3 nutrition cards width */
+#time-histogram {
+  width: calc(100% - 2 * var(--chart-gap)); /* 3 cards minus gaps */
+  height: 280px;
+  margin: 0 auto;
+}
+
+/* Scatter Plot - 1.5 nutrition cards width and centered */
+#scatter-plot {
+  width: calc(50% - 0.5 * var(--chart-gap)); /* 1.5 cards */
+  height: 500px;
+  margin: 0 auto;
+}
+
+/* ==================== */
+/* === CHART CARDS === */
+/* ==================== */
 .chart {
-  flex: 1;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  padding: 1.2rem;
   display: flex;
   flex-direction: column;
-  min-width: 300px; /* 增加最小宽度 */
-  max-width: 100%;
+  transition: box-shadow 0.3s ease;
 }
 
-.chart.large {
-  flex: 2;
-  min-width: 500px; /* 散点图更大 */
+.chart:hover {
+  box-shadow: var(--shadow-hover);
 }
 
 .chart h2 {
-  margin: 0 0 0.5rem;
-  font-size: 1.2rem;
+  margin: 0 0 0.8rem;
+  font-size: 1.1rem;
   text-align: center;
+  color: #34495e;
 }
 
 .chart p {
-  font-size: 0.9rem;
-  margin: 0.25rem 0;
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  margin: 0.3rem 0 0.8rem;
   text-align: center;
 }
 
-/* 居中概览 */
-#overview .chart,
-#argument .chart {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-/* 新增：主网格布局 */
-.chart-container {
-  display: grid;
-  grid-template-areas:
-    "controls controls controls"
-    "timehist timehist timehist"
-    "nutrient1 nutrient2 nutrient3"
-    "nutrient4 nutrient5 nutrient6"
-    "scatter scatter scatter";
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 1.5rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem;
-}
-
-/* 控件行 */
-.controls-row {
-  grid-area: controls;
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  margin-bottom: 0;
-}
-
-/* 时间直方图 */
-#time-histogram {
-  grid-area: timehist;
-  min-height: 200px;
-}
-
-/* 营养直方图位置分配 */
-#carb-histogram { grid-area: nutrient1; }
-#prot-histogram { grid-area: nutrient2; }
-#fat-histogram { grid-area: nutrient3; }
-#sugar-histogram { grid-area: nutrient4; }
-#fiber-histogram { grid-area: nutrient5; }
-#calorie-histogram { grid-area: nutrient6; }
-
-/* 散点图 */
-#scatter-plot {
-  grid-area: scatter;
-  min-height: 400px;
-}
-
-/* 基础图表样式保持不变 */
-.chart {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
-}
-
-.chart h2 {
-  margin: 0 0 0.5rem;
-  font-size: 1.2rem;
-  text-align: center;
-}
-
-/* 控件小图表 */
+/* Small Control Charts */
 .chart.small {
-  min-width: 200px;
-  min-height: 120px;
+  min-width: 180px;
+  max-width: 220px;
+  height: 130px;
+  justify-content: center;
+  padding: 1rem;
 }
 
-/* 图表容器 */
+.chart.small h2 {
+  font-size: 1rem;
+  margin-bottom: 0.6rem;
+}
+
+/* Chart Containers */
 .dc-chart {
+  flex: 1;
   width: 100%;
-  height: 100%;
+  overflow: visible;
 }
 
-/* 响应式调整 */
-@media (max-width: 992px) {
-  .chart-container {
-    grid-template-areas:
-      "controls"
-      "timehist"
-      "nutrient1"
-      "nutrient2" 
-      "nutrient3"
-      "nutrient4"
-      "nutrient5"
-      "nutrient6"
-      "scatter";
-    grid-template-columns: 1fr;
-  }
-  
-  .controls-row {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .chart.small {
-    width: 100%;
-  }
+#time-histogram .dc-chart {
+  height: 220px;
 }
 
-/* 工具提示 */
-.tooltip {
-  position: absolute;
-  background: rgba(0, 0, 0, 0.85);
-  color: #fff;
-  padding: 8px 12px;
-  border-radius: 4px;
-  pointer-events: none;
-  font-size: 0.9rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  line-height: 1.3;
-  white-space: nowrap;
-  z-index: 1000;
-  transition: opacity 0.2s ease;
+#scatter-plot .dc-chart {
+  height: 450px;
 }
 
-.tooltip div {
-  margin: 2px 0;
-}
+/* ==================== */
+/* === CHART STYLES === */
+/* ==================== */
+/* Histogram Colors */
+#time-histogram rect.hist { fill: var(--color-time); }
+#carb-histogram rect.hist { fill: var(--color-carb); }
+#prot-histogram rect.hist { fill: var(--color-prot); }
+#fat-histogram rect.hist { fill: var(--color-fat); }
+#sugar-histogram rect.hist { fill: var(--color-sugar); }
+#fiber-histogram rect.hist { fill: var(--color-fiber); }
+#calorie-histogram rect.hist { fill: var(--color-calorie); }
 
-/* 直方图淡化效果 */
 rect.hist.dimmed {
   fill-opacity: 0.2;
 }
 
-/* 选中点的高亮 */
+/* Scatter Plot Styles */
+circle {
+  fill: #e74c3c;
+  stroke: #c0392b;
+  stroke-width: 0.5;
+  transition: fill-opacity 0.2s, stroke-opacity 0.2s;
+}
+
+circle.dimmed {
+  fill-opacity: 0.2;
+  stroke-opacity: 0.2;
+}
+
 circle.selected {
   stroke: #ff0000;
   stroke-width: 2;
 }
 
-/* 按钮样式（适配Bootstrap） */
-#reset-filters {
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
+/* Axis Styles */
+.axis text {
+  font-size: 12px;
+  fill: var(--axis-color);
 }
 
-/* 选择框样式 */
-#nutrientSelect {
-  width: 100%;
-  max-width: 200px;
-  margin: 0 auto;
+.axis line {
+  stroke: #ddd;
 }
 
-/* 页脚 */
+.axis path {
+  stroke: #bbb;
+}
+
+/* ==================== */
+/* === FORM CONTROLS === */
+/* ==================== */
+.form-select {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  background-color: #f9f9f9;
+  transition: border-color 0.3s;
+}
+
+.form-select:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+.btn {
+  padding: 0.5rem 1.2rem;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.btn-primary {
+  background-color: #3498db;
+  border-color: #3498db;
+}
+
+.btn-primary:hover {
+  background-color: #2980b9;
+  border-color: #2980b9;
+}
+
+/* ==================== */
+/* === TOOLTIP STYLES === */
+/* ==================== */
+.tooltip {
+  position: absolute;
+  background: var(--tooltip-bg);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  pointer-events: none;
+  font-size: 0.8rem;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+  line-height: 1.4;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.tooltip rect {
+  fill: var(--tooltip-bg);
+  rx: 5;
+  ry: 5;
+}
+
+.tooltip text {
+  font-size: 0.75rem;
+  fill: white;
+}
+
+.tooltip tspan {
+  display: block;
+  margin: 2px 0;
+}
+
+/* ==================== */
+/* === FOOTER STYLES === */
+/* ==================== */
 footer {
-  box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.1);
+  background: #ecf0f1;
+  padding: 1.5rem 0;
+  text-align: center;
+  margin-top: 2rem;
+  box-shadow: var(--shadow-footer);
 }
 
-/* 响应式调整 */
+/* ==================== */
+/* === RESPONSIVE DESIGN === */
+/* ==================== */
+@media (max-width: 1200px) {
+  .chart-row.nutrition-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  #time-histogram {
+    width: 100%;
+  }
+  
+  #scatter-plot {
+    width: 75%;
+  }
+}
+
 @media (max-width: 768px) {
-  .chart-row {
-    flex-direction: column;
+  .chart-row.nutrition-row {
+    grid-template-columns: 1fr;
   }
-  .chart {
-    flex: 100%;
+  
+  #time-histogram,
+  #scatter-plot {
+    width: 100%;
   }
-  .chart.large {
-    min-width: 300px;
+  
+  .controls-row {
+    gap: 1rem;
   }
 }
 
+@media (max-width: 480px) {
+  .chart h2 {
+    font-size: 1rem;
+  }
+  
+  .chart p {
+    font-size: 0.8rem;
+  }
+  
+  .chart.small {
+    min-width: 45%;
+    height: 110px;
+  }
+}

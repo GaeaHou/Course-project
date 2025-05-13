@@ -107,9 +107,8 @@ d3.csv("added_food.csv", row => {
     d.total_fat = +d.fat_g || 0;
   });
 
-  const cw = document.querySelector('.chart-container')?.clientWidth || 1200;
-  const barW = (cw - 32) / 3, barH = 300; // Reduced height for histograms
-  const timeHistW = cw - 32, timeHistH = 300; // Wider time histogram
+  const cw = document.getElementById('charts')?.clientWidth || 1200;
+  const barW = (cw - 32) / 3, barH = 250; // 直方图高度调整为250
   const margin = { top: 20, right: 20, bottom: 40, left: 40 };
   
 

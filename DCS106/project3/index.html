@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blood Glucose and Nutrition Analysis</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入自定义CSS -->
+  <link rel orel="stylesheet" href="styles.css">
+  <!-- 引入D3.js -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body class="bg-gray-100">
+  <!-- 导航栏 -->
+  <nav class="bg-blue-600 text-white p-4">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Blood Glucose Study</h1>
+      <ul class="flex space-x-4">
+        <li><a href="#home" class="hover:underline">Home</a></li>
+        <li><a href="#chart" class="hover:underline">Visualization</a></li>
+        <li><a href="#about" class="hover:underline">About</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- 标题和描述 -->
+  <section id="home" class="py-12 text-center bg-white">
+    <div class="container mx-auto">
+      <h2 class="text-4xl font-bold mb-4">Blood Glucose and Nutrition Analysis</h2>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        Explore the relationship between blood glucose levels and nutritional components
+        for 16 subjects. Interact with the visualization below to gain insights.
+      </p>
+    </div>
+  </section>
+
+  <!-- 交互式图表区域 -->
+  <section id="chart" class="py-12 bg-gray-100">
+    <div class="container mx-auto text-center">
+      <h3 class="text-2xl font-semibold mb-6">Interactive Visualization</h3>
+      <div class="chart-container">
+        <!-- SVG 图表将在这里生成 -->
+        <div id="chart"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 关于部分 -->
+  <section id="about" class="py-12 bg-white">
+    <div class="container mx-auto text-center">
+      <h3 class="text-2xl font-semibold mb-6">About This Study</h3>
+      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+        This study analyzes data from 16 subjects to understand how dietary nutrients
+        affect blood glucose levels. The interactive chart allows you to explore correlations
+        between blood glucose and key nutrients like carbohydrates and proteins.
+      </p>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="bg-blue-600 text-white py-6">
+    <div class="container mx-auto text-center">
+      <p>© 2025 Blood Glucose Study. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- 引入JavaScript -->
+  <script src="script.js"></script>
+</body>
+</html>

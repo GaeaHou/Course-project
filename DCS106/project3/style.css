@@ -1,0 +1,10 @@
+/* 设置全局字体 */
+body {
+    font-family: 'Arial', sans-serif;
+  }
+  
+  /* 图表容器样式 */
+  .chart-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }

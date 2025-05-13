@@ -1,0 +1,453 @@
+// script.js
+const colors = d3.schemeTableau10;
+const parseTime = d3.timeParse("%Y-%m-%d %H:%M:%S");
+
+function highlightHistogramsFromScatter(selectedPoints) {
+  const dimensionKeys = [
+    { id: 'time-histogram', key: 'mealHour', precision: 1 },
+    { id: 'carb-histogram', key: 'total_carb', precision: 10 },
+    { id: 'prot-histogram', key: 'protein_g', precision: 5 },
+    { id: 'fat-histogram', key: 'fat_g', precision: 5 },
+    { id: 'sugar-histogram', key: 'sugar_g', precision: 5 },
+    { id: 'fiber-histogram', key: 'fiber_g', precision: 2 },
+    { id: 'calorie-histogram', key: 'calorie', precision: 100 }
+  ];
+
+  dimensionKeys.forEach(dim => {
+    const binsToKeep = new Set(
+      selectedPoints.map(d => Math.floor(d[dim.key] / dim.precision) * dim.precision)
+    );
+    d3.selectAll(`#${dim.id} rect.hist`)
+      .classed("dimmed", d => !binsToKeep.has(d.key));
+  });
+}
+
+function clearHistogramHighlighting() {
+  d3.selectAll("rect.hist").classed("dimmed", false);
+}
+
+const style = document.createElement('style');
+style.innerHTML = `
+  rect.hist.dimmed {
+    fill-opacity: 0.2;
+  }
+`;
+document.head.appendChild(style);
+
+let filters = {
+  time: null,
+  person: null,
+  carb: null,
+  prot: null,
+  fat: null,
+  sugar: null,
+  fiber: null,
+  calorie: null
+};
+
+const chartInstances = {
+  timeHist: null,
+  countDisplay: null,
+  nutrientHists: []
+};
+
+let allData = [];
+
+// Create tooltip dynamically
+const tooltip = d3.select("body")
+  .append("div")
+  .attr("class", "tooltip")
+  .style("opacity", 0);
+
+d3.csv("added_food.csv", row => {
+  const parsedRow = {
+    time_begin: parseTime(row.time_begin || ""),
+    total_carb: +row.total_carb || 0,
+    protein_g: +row.protein || 0,
+    fat_g: +row.total_fat || 0,
+    sugar_g: +row.sugar || 0,
+    fiber_g: +row.dietary_fiber || 0,
+    calorie: +row.calorie || 0,
+    grow_in_glu: +row.grow_in_glu || 0,
+    person: row.person || "Unknown",
+    logged_food: row.logged_food || "Unknown"
+  };
+  if (!parsedRow.time_begin) {
+    console.warn("Invalid time_begin in row:", row);
+    return null;
+  }
+  return parsedRow;
+}).then(data => {
+  allData = data.filter(d => d !== null);
+  if (allData.length === 0) {
+    console.error("No valid data loaded.");
+    return;
+  }
+
+  allData.forEach(d => {
+    d.mealHour = d.time_begin.getHours() + d.time_begin.getMinutes() / 60;
+    d.sugar = +d.sugar_g || 0;
+    d.total_carb = +d.total_carb || 0;
+    d.grow_in_glu = +d.grow_in_glu || 0;
+    d.total_fat = +d.fat_g || 0;
+  });
+
+  const cw = document.getElementById('charts')?.clientWidth || 800;
+  const barW = (cw - 32) / 3, barH = 450;
+  const margin = { top: 20, right: 20, bottom: 40, left: 40 };
+
+  function filterData() {
+    return allData.filter(d => {
+      const timeMatch = !filters.time || (d.mealHour >= filters.time[0] && d.mealHour <= filters.time[1]);
+      return (
+        timeMatch &&
+        (!filters.person || d.person === filters.person) &&
+        (!filters.carb || (d.total_carb >= filters.carb[0] && d.total_carb <= filters.carb[1])) &&
+        (!filters.prot || (d.protein_g >= filters.prot[0] && d.protein_g <= filters.prot[1])) &&
+        (!filters.fat || (d.fat_g >= filters.fat[0] && d.fat_g <= filters.fat[1])) &&
+        (!filters.sugar || (d.sugar_g >= filters.sugar[0] && d.sugar_g <= filters.sugar[1])) &&
+        (!filters.fiber || (d.fiber_g >= filters.fiber[0] && d.fiber_g <= filters.fiber[1])) &&
+        (!filters.calorie || (d.calorie >= filters.calorie[0] && d.calorie <= filters.calorie[1]))
+      );
+    });
+  }
+
+  function updateCharts() {
+    chartInstances.timeHist?.update();
+    chartInstances.countDisplay?.update();
+    chartInstances.nutrientHists.forEach(h => h.update());
+  }
+
+  function updateScatterChart() {
+    const container = d3.select("#scatter-plot .dc-chart");
+    if (!container.node()) return;
+  
+    let svg = container.select("svg");
+    if (svg.empty()) {
+      svg = container.append("svg").attr("width", 600).attr("height", 400);
+    }
+  
+    const marginScatter = { top: 40, right: 30, bottom: 60, left: 60 };
+    const width = +svg.attr("width") - marginScatter.left - marginScatter.right;
+    const height = +svg.attr("height") - marginScatter.top - marginScatter.bottom;
+  
+    let g = svg.select("g.scatter-group");
+    if (g.empty()) {
+      g = svg.append("g")
+        .attr("class", "scatter-group")
+        .attr("transform", `translate(${marginScatter.left},${marginScatter.top})`);
+    }
+  
+    let xAxisGroup = g.select(".x-axis");
+    if (xAxisGroup.empty()) {
+      xAxisGroup = g.append("g").attr("class", "x-axis").attr("transform", `translate(0,${height})`);
+    }
+  
+    let yAxisGroup = g.select(".y-axis");
+    if (yAxisGroup.empty()) {
+      yAxisGroup = g.append("g").attr("class", "y-axis");
+    }
+
+    const selectedPerson = d3.select("#subjectSelect").property("value") || null;
+    const selectedNutrient = d3.select("#nutrientSelect").property("value") || "sugar";
+
+    const filtered = filterData().filter(d => (!selectedPerson || d.person === selectedPerson) && !isNaN(d[selectedNutrient]) && !isNaN(d.grow_in_glu));
+
+    filtered.sort((a, b) => d3.descending(a.total_fat, b.total_fat));
+
+    const x = d3.scaleLinear()
+      .domain(d3.extent(filtered, d => d[selectedNutrient])).nice()
+      .range([0, width]);
+
+    const y = d3.scaleLinear()
+      .domain(d3.extent(filtered, d => d.grow_in_glu)).nice()
+      .range([height, 0]);
+
+    const r = d3.scaleSqrt()
+      .domain(d3.extent(filtered, d => d.total_fat))
+      .range([2, 10]);
+
+    xAxisGroup.transition().call(d3.axisBottom(x));
+    yAxisGroup.transition().call(d3.axisLeft(y));
+
+    // Add axis labels
+    g.select(".x-axis-label").remove();
+    g.append("text")
+      .attr("class", "x-axis-label")
+      .attr("text-anchor", "middle")
+      .attr("x", width / 2)
+      .attr("y", height + marginScatter.bottom - 10)
+      .text(selectedNutrient === "sugar" ? "Sugar (g)" : "Total Carbohydrate (g)");
+
+    g.select(".y-axis-label").remove();
+    g.append("text")
+      .attr("class", "y-axis-label")
+      .attr("text-anchor", "middle")
+      .attr("transform", "rotate(-90)")
+      .attr("x", -height / 2)
+      .attr("y", -marginScatter.left + 20)
+      .text("Glucose Increase (mg/dL)");
+
+    const circles = g.selectAll("circle").data(filtered, d => d.time_begin + (d.group_id || ""));
+    circles.exit().transition().attr("r", 0).remove();
+    circles.transition()
+      .attr("cx", d => x(d[selectedNutrient]))
+      .attr("cy", d => y(d.grow_in_glu))
+      .attr("r", d => r(d.total_fat));
+
+    // Bind tooltip events to all circles (including enter and existing ones)
+    const allCircles = circles.enter().append("circle")
+      .attr("cx", d => x(d[selectedNutrient]))
+      .attr("cy", d => y(d.grow_in_glu))
+      .attr("r", d => r(d.total_fat))
+      .attr("fill", "steelblue")
+      .merge(circles);
+
+    // Bind hover events with debugging
+    allCircles
+      .on("mouseover", (event, d) => {
+        console.log("Mouseover triggered for data:", d); // Debug log
+        tooltip
+          .style("opacity", 1)
+          .html(`
+            <div>Calories: ${d.calorie}</div>
+            <div>Total Carb: ${d.total_carb} g</div>
+            <div>Fiber: ${d.fiber_g} g</div>
+            <div>Sugar: ${d.sugar_g} g</div>
+            <div>Protein: ${d.protein_g} g</div>
+            <div>Fat: ${d.total_fat} g</div>
+            <div>Δ Glucose: ${d.grow_in_glu.toFixed(1)} mg/dL</div>
+          `);
+
+        const tooltipWidth = tooltip.node().offsetWidth || 150; // Default width if not yet measured
+        const tooltipHeight = tooltip.node().offsetHeight || 100; // Default height if not yet measured
+        let xPos = event.pageX + 10;
+        let yPos = event.pageY - tooltipHeight - 10;
+
+        if (xPos + tooltipWidth > window.innerWidth) {
+          xPos = event.pageX - tooltipWidth - 10;
+        }
+        if (yPos < 0) {
+          yPos = event.pageY + 10;
+        }
+
+        tooltip
+          .style("left", xPos + "px")
+          .style("top", yPos + "px");
+      })
+      .on("mouseout", () => {
+        console.log("Mouseout triggered"); // Debug log
+        tooltip.style("opacity", 0);
+      });
+
+    // Add brush for scatter plot
+    let brush = g.select(".brush");
+    if (brush.empty()) {
+      brush = g.append("g")
+        .attr("class", "brush")
+        .lower(); // Lower brush to avoid interfering with circle events
+    }
+
+    // Define brush behavior
+    const brushBehavior = d3.brush()
+      .extent([[0, 0], [width, height]])
+      .on("start brush end", brushed);
+
+    brush.call(brushBehavior);
+
+    let wasBrushed = false;
+
+    function brushed(event) {
+      const selection = event.selection;
+      if (event.type === "start") {
+        allCircles.classed("selected", false);
+        wasBrushed = false;
+      }
+      if (selection) {
+        wasBrushed = true;
+        const [[x0, y0], [x1, y1]] = selection;
+        allCircles.classed("selected", d => {
+          const cx = x(d[selectedNutrient]);
+          const cy = y(d.grow_in_glu);
+          return cx >= x0 && cx <= x1 && cy >= y0 && cy <= y1;
+        });
+
+        const selectedData = filtered.filter(d => {
+          const cx = x(d[selectedNutrient]);
+          const cy = y(d.grow_in_glu);
+          return cx >= x0 && cx <= x1 && cy >= y0 && cy <= y1;
+        });
+
+        highlightHistogramsFromScatter(selectedData);
+      } else {
+        allCircles.classed("selected", false);
+        wasBrushed = false;
+        clearHistogramHighlighting();
+      }
+    }
+
+    // Clear brush on click outside selection
+    svg.on("click", (event) => {
+      if (event.target.tagName === "circle" || event.target.classList.contains("selection")) {
+        return;
+      }
+      if (wasBrushed) {
+        brush.call(brushBehavior.move, null);
+        allCircles.classed("selected", false);
+        wasBrushed = false;
+        clearHistogramHighlighting();
+      }
+    });
+  }
+
+  function createTimeHistogram() {
+    const container = d3.select('#time-histogram .dc-chart');
+    const svg = container.append('svg').attr('width', barW).attr('height', barH);
+    const x = d3.scaleLinear().domain([0, 24]).range([margin.left, barW - margin.right]);
+    const y = d3.scaleLinear().range([barH - margin.bottom, margin.top]);
+
+    function update() {
+      const data = filterData();
+      const grouped = d3.rollup(data, v => v.length, d => Math.floor(d.mealHour));
+      const bins = Array.from(grouped, ([k, v]) => ({ key: k, value: v })).sort((a, b) => a.key - b.key);
+      y.domain([0, d3.max(bins, d => d.value) || 1]);
+
+      svg.selectAll("rect.hist").remove();
+      svg.selectAll("rect.hist")
+        .data(bins)
+        .enter()
+        .append("rect")
+        .attr("class", "hist")
+        .attr("x", d => x(d.key))
+        .attr("y", d => y(d.value))
+        .attr("width", Math.max(1, x(1) - x(0) - 1))
+        .attr("height", d => Math.max(0, barH - margin.bottom - y(d.value)))
+        .attr("fill", colors[0]);
+
+      svg.select(".y-axis").call(d3.axisLeft(y).ticks(5));
+    }
+
+    svg.append("g").attr("class", "x-axis").attr("transform", `translate(0, ${barH - margin.bottom})`).call(d3.axisBottom(x).ticks(24));
+    svg.append("g").attr("class", "y-axis").attr("transform", `translate(${margin.left}, 0)`).call(d3.axisLeft(y).ticks(5));
+
+    svg.append("g").attr("class", "brush")
+      .call(d3.brushX().extent([[margin.left, margin.top], [barW - margin.right, barH - margin.bottom]])
+        .on("end", (event) => {
+          if (event.selection) {
+            filters.time = [x.invert(event.selection[0]), x.invert(event.selection[1])];
+          } else {
+            filters.time = null;
+          }
+          updateCharts();
+          updateScatterChart();
+        }));
+
+    return { update };
+  }
+
+  function createPersonSelect() {
+    const container = d3.select('#subject-select .dc-chart');
+    const persons = [...new Set(allData.map(d => d.person))].sort();
+    const select = container.append('select').attr('id', 'subjectSelect')
+      .on('change', () => {
+        filters.person = d3.select('#subjectSelect').property('value') || null;
+        updateCharts();
+        updateScatterChart();
+      });
+
+    select.append('option').attr('value', '').text('All');
+    select.selectAll('option.person')
+      .data(persons)
+      .enter()
+      .append('option')
+      .attr("value", d => d)
+      .text(d => d);
+  }
+
+  function createCountDisplay() {
+    const container = d3.select('#total-count .dc-chart');
+    const span = container.append('span');
+    return {
+      update: () => span.text(filterData().length)
+    };
+  }
+
+  function createNutrientHistogram({ id, key, precision, filterKey, label }, index) {
+    const container = d3.select(`#${id} .dc-chart`);
+    const svg = container.append("svg").attr("width", barW).attr("height", barH);
+    const x = d3.scaleLinear().range([margin.left, barW - margin.right]);
+    const y = d3.scaleLinear().range([barH - margin.bottom, margin.top]);
+
+    function update() {
+      const data = filterData();
+      const grouped = d3.rollup(data, v => v.length, d => Math.floor(d[key] / precision) * precision);
+      const bins = Array.from(grouped, ([k, v]) => ({ key: k, value: v })).sort((a, b) => a.key - b.key);
+
+      x.domain([0, d3.max(allData, d => d[key]) || precision]);
+      y.domain([0, d3.max(bins, d => d.value) || 1]);
+
+      svg.selectAll("rect.hist").remove();
+      svg.selectAll("rect.hist")
+        .data(bins)
+        .enter()
+        .append("rect")
+        .attr("class", "hist")
+        .attr("x", d => x(d.key))
+        .attr("y", d => y(d.value))
+        .attr("width", Math.max(1, x(precision) - x(0) - 1))
+        .attr("height", d => Math.max(0, barH - margin.bottom - y(d.value)))
+        .attr("fill", colors[index]);
+
+      svg.select(".x-axis").call(d3.axisBottom(x).ticks(5));
+      svg.select(".y-axis").call(d3.axisLeft(y).ticks(5));
+    }
+
+    x.domain([0, d3.max(allData, d => d[key]) || precision]);
+    svg.append("g").attr("class", "x-axis").attr("transform", `translate(0, ${barH - margin.bottom})`).call(d3.axisBottom(x).ticks(5));
+    svg.append("g").attr("class", "y-axis").attr("transform", `translate(${margin.left}, 0)`).call(d3.axisLeft(y).ticks(5));
+
+    svg.append("g").attr("class", "brush")
+      .call(d3.brushX().extent([[margin.left, margin.top], [barW - margin.right, barH - margin.bottom]])
+        .on("end", (event) => {
+          if (event.selection) {
+            filters[filterKey] = [x.invert(event.selection[0]), x.invert(event.selection[1])];
+          } else {
+            filters[filterKey] = null;
+          }
+          updateCharts();
+          updateScatterChart();
+        }));
+
+    return { update };
+  }
+
+  chartInstances.timeHist = createTimeHistogram();
+  createPersonSelect();
+  chartInstances.countDisplay = createCountDisplay();
+  chartInstances.nutrientHists = [
+    { id: 'carb-histogram', key: 'total_carb', precision: 10, filterKey: 'carb', label: 'Carbs (g)' },
+    { id: 'prot-histogram', key: 'protein_g', precision: 5, filterKey: 'prot', label: 'Protein (g)' },
+    { id: 'fat-histogram', key: 'fat_g', precision: 5, filterKey: 'fat', label: 'Fat (g)' },
+    { id: 'sugar-histogram', key: 'sugar_g', precision: 5, filterKey: 'sugar', label: 'Sugar (g)' },
+    { id: 'fiber-histogram', key: 'fiber_g', precision: 2, filterKey: 'fiber', label: 'Fiber (g)' },
+    { id: 'calorie-histogram', key: 'calorie', precision: 100, filterKey: 'calorie', label: 'Calories' }
+  ].map((cfg, i) => createNutrientHistogram(cfg, i));
+
+  updateCharts();
+  updateScatterChart();
+
+  d3.select('#reset-filters').on('click', () => {
+    Object.keys(filters).forEach(k => filters[k] = null);
+    d3.select('#subjectSelect').property('value', '');
+    d3.selectAll('.brush').each(function () {
+      d3.select(this).call(d3.brushX().move, null);
+    });
+    updateCharts();
+    updateScatterChart();
+    clearHistogramHighlighting();
+  });
+
+  d3.select("#nutrientSelect").on("change", updateScatterChart);
+}).catch(error => {
+  console.error('Error loading data:', error);
+});

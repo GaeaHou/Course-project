@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glucose Response Explorer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Glucose Response Explorer</h1>
+    <button id="reset-filters">Reset Filters</button>
+  </header>
+
+  <div id="charts">
+    <div id="overview">
+      <div class="chart">
+        <h2>Dashboard Overview</h2>
+        <p>Explore how meal timing and nutrient composition affect 2-hour glucose increase.</p>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div id="time-histogram" class="chart">
+        <h2>Meal Time (Hour)</h2>
+        <p>Number of meal events in each hour of the day.</p>
+        <div class="dc-chart"></div>
+      </div>
+      <div id="subject-select" class="chart">
+        <h2>Participant</h2>
+        <p>Filter to a single participant’s data.</p>
+        <div class="dc-chart"></div>
+      </div>
+      <div id="total-count" class="chart">
+        <h2>Event Count</h2>
+        <p>Total meals under current filters.</p>
+        <div class="dc-chart"></div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div id="carb-histogram" class="chart">
+        <h2>Carbs (10g bins)</h2>
+        <p>Distribution of carbohydrate intake per meal.</p>
+        <div class="dc-chart"></div>
+      </div>
+      <div id="prot-histogram" class="chart">
+        <h2>Protein (5g bins)</h2>
+        <p>Distribution of protein intake per meal.</p>
+        <div class="dc-chart"></div>
+      </div>
+      <div id="fat-histogram" class="chart">
+        <h2>Fat (5g bins)</h2>
+        <p>Distribution of fat intake per meal.</p>
+        <div class="dc-chart"></div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div id="sugar-histogram" class="chart">
+        <h2>Sugar (5g bins)</h2>
+        <p>Distribution of sugar intake per meal.</p>
+        <div class="dc-chart"></div>
+      </div>
+      <div id="fiber-histogram" class="chart">
+        <h2>Fiber (2g bins)</h2>
+        <p>Distribution of fiber intake per meal.</p>
+        <div class="dc-chart"></div>
+      </div>
+      <div id="calorie-histogram" class="chart">
+        <h2>Calories (100kcal bins)</h2>
+        <p>Distribution of total calories per meal.</p>
+        <div class="dc-chart"></div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div id="scatter-plot" class="chart large">
+        <h2>Carbs vs. 2-Hour Glucose Increase</h2>
+        <p>Each point: x = nutrient (g), y = glucose ↑ over 2 hours (mg/dL).</p>
+        <div class="dc-chart"></div>
+      </div>
+    </div>
+
+    <div>
+      <label for="nutrientSelect">Select Nutrient: </label>
+      <select id="nutrientSelect">
+        <option value="sugar">Sugar</option>
+        <option value="total_carb">Total Carbohydrate</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="nutrient-tooltip" class="tooltip">
+    <div id="tip-calorie"></div>
+    <div id="tip-total_carb"></div>
+    <div id="tip-dietary_fiber"></div>
+    <div id="tip-sugar"></div>
+    <div id="tip-protein"></div>
+    <div id="tip-total_fat"></div>
+    <div id="tip-grow_in_glu"></div>
+  </div>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

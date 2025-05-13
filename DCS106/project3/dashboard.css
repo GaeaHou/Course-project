@@ -1,0 +1,76 @@
+.dc-chart {
+    font-family: 'Open Sans', sans-serif;
+  }
+  
+  .chart-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+  }
+  
+  .chart {
+    background: white;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+  }
+  
+  .chart.large {
+    grid-column: 1 / -1;
+  }
+  
+  .chart-container {
+    padding: 15px;
+    height: 250px;
+  }
+  
+  .chart.large .chart-container {
+    height: 400px;
+  }
+  
+  .card-footer {
+    padding: 15px;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    font-size: 13px;
+    color: var(--gray);
+  }
+  
+  /* 关键发现样式 */
+  .insights-content {
+    padding: 20px;
+  }
+  
+  .insight-item {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+  }
+  
+  .insight-item i {
+    font-size: 20px;
+    color: var(--primary);
+    margin-top: 3px;
+  }
+  
+  .insight-item h4 {
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: var(--dark);
+  }
+  
+  .insight-item p {
+    font-size: 14px;
+    color: var(--gray);
+  }
+  
+  /* 响应式调整 */
+  @media (max-width: 768px) {
+    .chart-row {
+      grid-template-columns: 1fr;
+    }
+    
+    .chart-container {
+      height: 200px;
+    }
+  }

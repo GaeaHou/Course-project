@@ -348,16 +348,25 @@ d3.csv("added_food.csv", row => {
 
   function createTimeHistogram() {
     const container = d3.select('#time-histogram .dc-chart');
-    const svg = container.append('svg').attr('width', barW).attr('height', barH);
-    const x = d3.scaleLinear().domain([0, 24]).range([margin.left, barW - margin.right]);
-    const y = d3.scaleLinear().range([barH - margin.bottom, margin.top]);
-
+    const containerWidth = container.node().clientWidth;
+    const svg = container.append('svg')
+      .attr('width', '100%')
+      .attr('height', barH);
+    
+    // Use the full available width
+    const x = d3.scaleLinear()
+      .domain([0, 24])
+      .range([margin.left, containerWidth - margin.right]);
+    
+    const y = d3.scaleLinear()
+      .range([barH - margin.bottom, margin.top]);
+  
     function update() {
       const data = filterData();
       const grouped = d3.rollup(data, v => v.length, d => Math.floor(d.mealHour));
       const bins = Array.from(grouped, ([k, v]) => ({ key: k, value: v })).sort((a, b) => a.key - b.key);
       y.domain([0, d3.max(bins, d => d.value) || 1]);
-
+  
       svg.selectAll("rect.hist").remove();
       svg.selectAll("rect.hist")
         .data(bins)
@@ -369,15 +378,26 @@ d3.csv("added_food.csv", row => {
         .attr("width", Math.max(1, x(1) - x(0) - 1))
         .attr("height", d => Math.max(0, barH - margin.bottom - y(d.value)))
         .attr("fill", colors[0]);
-
+  
       svg.select(".y-axis").call(d3.axisLeft(y).ticks(5));
     }
-
-    svg.append("g").attr("class", "x-axis").attr("transform", `translate(0, ${barH - margin.bottom})`).call(d3.axisBottom(x).ticks(24));
-    svg.append("g").attr("class", "y-axis").attr("transform", `translate(${margin.left}, 0)`).call(d3.axisLeft(y).ticks(5));
-
-    svg.append("g").attr("class", "brush")
-      .call(d3.brushX().extent([[margin.left, margin.top], [barW - margin.right, barH - margin.bottom]])
+  
+    // Initialize axes
+    svg.append("g")
+      .attr("class", "x-axis")
+      .attr("transform", `translate(0, ${barH - margin.bottom})`)
+      .call(d3.axisBottom(x).ticks(24));
+      
+    svg.append("g")
+      .attr("class", "y-axis")
+      .attr("transform", `translate(${margin.left}, 0)`)
+      .call(d3.axisLeft(y).ticks(5));
+  
+    // Brush functionality - updated to use dynamic width
+    svg.append("g")
+      .attr("class", "brush")
+      .call(d3.brushX()
+        .extent([[margin.left, margin.top], [containerWidth - margin.right, barH - margin.bottom]])
         .on("end", (event) => {
           if (event.selection) {
             filters.time = [x.invert(event.selection[0]), x.invert(event.selection[1])];
@@ -386,8 +406,9 @@ d3.csv("added_food.csv", row => {
           }
           updateCharts();
           updateScatterChart();
-        }));
-
+        })
+      );
+  
     return { update };
   }
 

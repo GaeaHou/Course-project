@@ -2,7 +2,6 @@
 /* ==== BASE STYLES ==== */
 /* ==================== */
 :root {
-  /* Color Variables */
   --color-time: #4e79a7;
   --color-carb: #f28e2b;
   --color-prot: #e15759;
@@ -15,12 +14,8 @@
   --card-bg: white;
   --axis-color: #666;
   --tooltip-bg: rgba(30, 30, 30, 0.95);
-  
-  /* Sizing Variables */
   --border-radius: 8px;
   --chart-gap: 1rem;
-  
-  /* Shadow Variables */
   --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
   --shadow-nav: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -38,7 +33,7 @@ body {
 
 .container {
   max-width: 1400px;
-  padding: 0 20px;
+  padding: 0 60px;
   margin: 0 auto;
 }
 
@@ -60,8 +55,9 @@ h1 {
 }
 
 h2 {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   margin-bottom: 1rem;
+  text-align: center;
 }
 
 .text-center {
@@ -74,7 +70,6 @@ h2 {
 
 /* ==================== */
 /* === NAVIGATION === */
-/* ==================== */
 .navbar {
   box-shadow: var(--shadow-nav);
   padding: 0.8rem 1rem;
@@ -87,15 +82,14 @@ h2 {
 
 /* ==================== */
 /* === CHART LAYOUT === */
-/* ==================== */
 #charts {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   margin-top: 1rem;
+  padding: 0 20px;
 }
 
-/* Control Row */
 .controls-row {
   display: flex;
   justify-content: center;
@@ -104,31 +98,28 @@ h2 {
   flex-wrap: wrap;
 }
 
-/* Nutrition Charts Grid */
 .chart-row.nutrition-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--chart-gap);
   margin-bottom: 1.5rem;
+  justify-items: center;
 }
 
-/* Time Histogram - 3 nutrition cards width */
 #time-histogram {
-  width: calc(100% - 2 * var(--chart-gap)); /* 3 cards minus gaps */
+  width: calc(100% - 2 * var(--chart-gap));
   height: 280px;
   margin: 0 auto;
 }
 
-/* Scatter Plot - 1.5 nutrition cards width and centered */
 #scatter-plot {
-  width: calc(50% - 0.5 * var(--chart-gap)); /* 1.5 cards */
+  width: calc(50% - 0.5 * var(--chart-gap));
   height: 500px;
   margin: 0 auto;
 }
 
 /* ==================== */
 /* === CHART CARDS === */
-/* ==================== */
 .chart {
   background: var(--card-bg);
   border-radius: var(--border-radius);
@@ -145,7 +136,7 @@ h2 {
 
 .chart h2 {
   margin: 0 0 0.8rem;
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   text-align: center;
   color: #34495e;
 }
@@ -157,21 +148,23 @@ h2 {
   text-align: center;
 }
 
-/* Small Control Charts */
 .chart.small {
-  min-width: 180px;
+  min-width: 220px;
   max-width: 220px;
   height: 130px;
   justify-content: center;
   padding: 1rem;
+  align-items: center;
 }
 
-.chart.small h2 {
-  font-size: 1rem;
-  margin-bottom: 0.6rem;
+#total-count .dc-chart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 
-/* Chart Containers */
 .dc-chart {
   flex: 1;
   width: 100%;
@@ -188,8 +181,6 @@ h2 {
 
 /* ==================== */
 /* === CHART STYLES === */
-/* ==================== */
-/* Histogram Colors */
 #time-histogram rect.hist { fill: var(--color-time); }
 #carb-histogram rect.hist { fill: var(--color-carb); }
 #prot-histogram rect.hist { fill: var(--color-prot); }
@@ -202,7 +193,6 @@ rect.hist.dimmed {
   fill-opacity: 0.2;
 }
 
-/* Scatter Plot Styles */
 circle {
   fill: #e74c3c;
   stroke: #c0392b;
@@ -220,7 +210,6 @@ circle.selected {
   stroke-width: 2;
 }
 
-/* Axis Styles */
 .axis text {
   font-size: 12px;
   fill: var(--axis-color);
@@ -236,14 +225,15 @@ circle.selected {
 
 /* ==================== */
 /* === FORM CONTROLS === */
-/* ==================== */
 .form-select {
   border: 1px solid #ddd;
   border-radius: 4px;
-  padding: 0.4rem 0.8rem;
+  padding: 0.6rem 1rem;
   font-size: 0.9rem;
   background-color: #f9f9f9;
   transition: border-color 0.3s;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-select:focus {
@@ -270,7 +260,6 @@ circle.selected {
 
 /* ==================== */
 /* === TOOLTIP STYLES === */
-/* ==================== */
 .tooltip {
   position: absolute;
   background: var(--tooltip-bg);
@@ -304,7 +293,6 @@ circle.selected {
 
 /* ==================== */
 /* === FOOTER STYLES === */
-/* ==================== */
 footer {
   background: #ecf0f1;
   padding: 1.5rem 0;
@@ -315,45 +303,25 @@ footer {
 
 /* ==================== */
 /* === RESPONSIVE DESIGN === */
-/* ==================== */
 @media (max-width: 1200px) {
   .chart-row.nutrition-row {
     grid-template-columns: repeat(2, 1fr);
   }
-  
-  #time-histogram {
-    width: 100%;
-  }
-  
-  #scatter-plot {
-    width: 75%;
-  }
+  #time-histogram { width: 100%; }
+  #scatter-plot { width: 75%; }
 }
 
 @media (max-width: 768px) {
   .chart-row.nutrition-row {
     grid-template-columns: 1fr;
   }
-  
-  #time-histogram,
-  #scatter-plot {
-    width: 100%;
-  }
-  
-  .controls-row {
-    gap: 1rem;
-  }
+  #time-histogram, #scatter-plot { width: 100%; }
+  .controls-row { gap: 1rem; }
 }
 
 @media (max-width: 480px) {
-  .chart h2 {
-    font-size: 1rem;
-  }
-  
-  .chart p {
-    font-size: 0.8rem;
-  }
-  
+  .chart h2 { font-size: 1rem; }
+  .chart p { font-size: 0.8rem; }
   .chart.small {
     min-width: 45%;
     height: 110px;

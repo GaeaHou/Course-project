@@ -31,13 +31,89 @@
         Explore the relationship between blood glucose levels and nutritional components
         for 16 subjects. Interact with the visualization below to gain insights.
       </p>
+      <!-- 数据基础 -->
+      <div class="mt-8">
+        <h3 class="text-2xl font-semibold mb-4">Our Data Foundation</h3>
+        <p class="text-gray-600 max-w-3xl mx-auto">
+          We built this platform using the <strong>BIG IDEAs Lab Glycemic Variability and Wearable Device Data</strong> from 
+          <a href="https://physionet.org/content/big-ideas-glycemic-wearable/1.1.2/" class="text-blue-600 hover:underline">PhysioNet</a>, 
+          capturing dietary logs and glucose responses from 16 participants. Our team cleaned and processed the dataset, combining food consumption within an hour into single meals and filtering meals at least 4 hours apart to account for glucose response delays.
+        </p>
+        <details class="mt-4">
+          <summary class="cursor-pointer text-blue-600 font-medium">📊 Peek at Our Processed Data</summary>
+          <div style="background: #f9f9f9; padding: 1rem; border-radius: 8px; margin-top: 0.5rem;">
+            <pre style="font-size: 0.9rem;">
+time_begin,person,logged_food,total_carb,protein_g,fat_g,sugar_g,fiber_g,calorie,grow_in_glu
+2023-01-15 08:30:00,P01,Oatmeal with Berries,45.2,8.1,5.3,12.4,6.2,280,25.6
+2023-01-15 12:15:00,P02,Grilled Chicken Salad,15.8,22.4,10.2,3.1,4.8,320,18.3
+            </pre>
+            <p style="font-style: italic; color: #666;">This snapshot shows cleaned meal data with nutrient details and glucose increase (grow_in_glu).</p>
+          </div>
+        </details>
+      </div>
+
+    
+      <!-- 可视化内容 -->
+      <div class="mt-8">
+        <h3 class="text-2xl font-semibold mb-4">What Our Visualizations Reveal</h3>
+        <p class="text-gray-600 max-w-3xl mx-auto mb-4">
+          Our interactive visualizations uncover the nuanced relationship between nutrient intake and blood glucose responses. Here’s what each component reveals:
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+          <div style="background: var(--card-bg); padding: 1.2rem; border-radius: var(--border-radius); box-shadow: var(--shadow);">
+            <h4 style="margin: 0 0 0.5rem; font-size: 1.25rem; color: #34495e;">Time Histogram</h4>
+            <p style="font-size: 0.9rem; color: #7f8c8d;">
+              <strong>X-Axis</strong>: 0–24 hours, representing the time of day.<br>
+              <strong>Y-Axis</strong>: Number of meal events per hour.<br>
+              <strong>Insight</strong>: Discover when meals are most frequently consumed, revealing eating patterns across the day.
+            </p>
+          </div>
+          <div style="background: var(--card-bg); padding: 1.2rem; border-radius: var(--border-radius); box-shadow: var(--shadow);">
+            <h4 style="margin: 0 0 0.5rem; font-size: 1.25rem; color: #34495e;">Nutrient Histograms</h4>
+            <p style="font-size: 0.9rem; color: #7f8c8d;">
+              <strong>X-Axis</strong>: Nutrient intake (e.g., carbs, protein, sugar) grouped into bins (e.g., 10g for carbs).<br>
+              <strong>Y-Axis</strong>: Number of meal events in each nutrient range.<br>
+              <strong>Insight</strong>: Understand the distribution of nutrient consumption, highlighting common intake levels.
+            </p>
+          </div>
+          <div style="background: var(--card-bg); padding: 1.2rem; border-radius: var(--border-radius); box-shadow: var(--shadow); grid-column: span 2;">
+            <h4 style="margin: 0 0 0.5rem; font-size: 1.25rem; color: #34495e;">Scatter Plot</h4>
+            <p style="font-size: 0.9rem; color: #7f8c8d;">
+              <strong>X-Axis</strong>: Nutrient selected (sugar or carbohydrate, via dropdown).<br>
+              <strong>Y-Axis</strong>: Glucose increase (mg/dL) within 2 hours post-meal.<br>
+              <strong>Point Size</strong>: Proportional to fat content.<br>
+              <strong>Insight</strong>: Visualize how nutrients correlate with glucose spikes, with tooltips showing meal details.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 交互方式 -->
+      <div class="mt-8">
+        <h3 class="text-2xl font-semibold mb-4">Interacting with Our Visualizations</h3>
+        <p class="text-gray-600 max-w-3xl mx-auto mb-4">
+          Our platform is designed for intuitive exploration. Here’s how you can dive in:
+        </p>
+        <ul class="text-gray-600 max-w-3xl mx-auto list-disc pl-6">
+          <li><strong>Filter by Participant</strong>: Use the dropdown to focus on a participant’s data.</li>
+          <li><strong>Toggle Nutrients</strong>: Switch between sugar and carbohydrate in the scatter plot.</li>
+          <li><strong>Brush to Highlight</strong>: Brush the scatter plot to highlight nutrient ranges in histograms, or brush histograms to filter the scatter plot.</li>
+          <li><strong>Hover for Details</strong>: Hover over scatter plot points to view nutrient data in tooltips.</li>
+          <li><strong>Reset Filters</strong>: Clear selections with the “Reset” button.</li>
+        </ul>
+        <div style="background: #e6f3ff; padding: 1rem; border-radius: 8px; margin-top: 1rem; max-width: 768px; margin-left: auto; margin-right: auto;">
+          <p style="font-size: 0.9rem; color: #34495e;">
+            <strong>Pro Tip</strong>: Try brushing the <strong>sugar</strong> and <strong>time</strong> histograms simultaneously to find high-sugar, late-night meals and see their glucose impact in the scatter plot!
+          </p>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- Visualization 部分 -->
   <section id="visualization" class="py-5 bg-light">
     <div class="container">
-      <h2 class="text-center mb-4">Interactive Visualization</h2>
+      <h2 class="text-2xl text-center mb-4">Interactive Visualization</h2>
       <!-- 修改后的图表区域 -->
       <div id="charts">
         <!-- 第一行：筛选控件和计数 -->
@@ -128,17 +204,45 @@
   </section>
 
   <!-- About 部分 -->
-  <section id="about" class="py-5">
+  <section id="about">
     <div class="container">
-      <h2 class="text-center mb-4">About This Study</h2>
-      <p class="text-center lead">
-        This study analyzes data from 16 subjects to understand how dietary nutrients
-        affect blood glucose levels. The interactive chart allows you to explore correlations
-        between blood glucose and key nutrients like carbohydrates and proteins.
-      </p>
+      <h2 class="text-2xl text-center mb-4"> About This Study</h2>
+      <div class="about-content">
+        <p class="lead">
+          This study explores the intricate relationship between dietary nutrients and blood glucose levels across 16 subjects. By leveraging interactive visualizations, we aim to uncover patterns and correlations that inform better dietary choices for managing glycemic variability. Our team of dedicated researchers and developers has collaborated to create this platform, combining expertise in data science, visualization, and health informatics.
+        </p>
+        <!-- 技术亮点 -->
+        <h3 class="text-xl font-semibold mt-6 mb-4">Technical Highlights</h3>
+        <p class="text-gray-600 mb-4">
+          Our design decisions balance clarity, interactivity, and insight:
+        </p>
+        <ul class="text-gray-600 list-disc pl-6 mb-4">
+          <li><strong>Unified Visualization Layout</strong>: We merged sugar and carbohydrate scatter plots into one with a nutrient toggle, reducing cognitive load while enabling comparison.</li>
+          <li><strong>Bidirectional Brushing</strong>: Brushing scatter plots highlights histogram bars, and vice versa, empowering exploration of both aggregate trends and individual meals.</li>
+          <li><strong>Tooltip Design</strong>: Scatter plot tooltips display comprehensive nutrient data, keeping the interface uncluttered.</li>
+          <li><strong>Dynamic Scaling</strong>: Axes and point sizes adjust dynamically for readability across nutrient selections and filters.</li>
+          <li><strong>Alternatives Considered</strong>: We explored line plots for glucose trends but chose scatter plots for granular meal comparisons. Bar charts were replaced with histograms for smoother binning.</li>
+        </ul>
+        <div style="background: var(--card-bg); padding: 1.2rem; border-radius: var(--border-radius); box-shadow: var(--shadow);">
+          <p style="font-size: 0.9rem; color: #7f8c8d;">
+            These choices reflect our commitment to a robust, user-centric platform that balances precision and accessibility.
+          </p>
+        </div>
+
+        <h3>Team Contributions</h3>
+        <div class="team-division">
+          <p>Below is the work split among our team members:</p>
+          <ul>
+            <li><strong>Wanting Li</strong>: Designed the scatter plot visualization, enabling interactive exploration of nutrient impacts on glucose response.</li>
+            <li><strong>Xuebing Hou</strong>: Orchestrated the integration of the complete interactive visualization and built the overall webpage structure.</li>
+            <li><strong>Jingxuan Sun</strong>: Developed the histogram visualizations, providing insights into nutrient distributions and meal timing.</li>
+            <li><strong>Po-Chen Lin</strong>: Led the exploration of the BIG IDEAs Lab Glycemic Variability and Wearable Device Data, and handled data cleaning to ensure high-quality datasets.</li>
+            <li><strong>All Members</strong>: Contributed to the exploration of the Korea surgery dataset, enriching our understanding of glycemic responses in diverse contexts.</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </section>
-
   <!-- 页脚 -->
   <footer class="bg-blue-600 text-white py-6">
     <div class="container mx-auto text-center">

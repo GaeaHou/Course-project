@@ -196,6 +196,10 @@ section {
   padding: 2rem 0;
 }
 
+
+
+
+
 /* ==================== */
 /* ==== TYPOGRAPHY ==== */
 /* ==================== */
@@ -210,7 +214,15 @@ h1 {
 }
 
 h2 {
-  font-size: 1.6rem;
+  font-size: 2.25rem; /* 调整为 text-4xl 的大小 */
+  font-weight: 700; /* 添加粗体，匹配 font-bold */
+  margin-bottom: 1rem; /* 匹配 mb-4 */
+  text-align: center;
+}
+
+/* 移除 .about-content h2 的单独样式，因为全局 h2 已调整 */
+.about-content h2 {
+  /* font-size: 2.5rem; 删除此行 */
   margin-bottom: 1rem;
   text-align: center;
 }
@@ -556,5 +568,99 @@ footer {
 @media (max-width: 768px) {
   .chart-row.scatter-row {
     width: 92%;
+  }
+}
+/* ==================== */
+/* === ABOUT SECTION STYLES === */
+#about {
+  background: var(--bg-color);
+  padding: 3rem 0;
+}
+
+.about-content {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.about-content .lead {
+  font-size: 1.1rem;
+  color: var(--text-color);
+  margin-bottom: 2rem;
+  line-height: 1.8;
+}
+
+
+.about-content h3 {
+  font-size: 1.6rem;
+  color: #2c3e50;
+  margin: 1.5rem 0 1rem;
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+
+.about-content h3::after {
+  content: '';
+  display: block;
+  width: 240px;
+  height: 3px;
+  background: #3498db;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+/* ... (team-division 样式保持不变) ... */
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  #about {
+    padding: 2rem 0;
+  }
+  .about-content {
+    padding: 0 1rem;
+  }
+  .about-content .lead {
+    font-size: 1rem;
+  }
+  h2 {
+    font-size: 1.875rem; /* 对应 Tailwind 的 text-3xl，稍微缩小 */
+  }
+  .about-content h2 {
+    font-size: 1.875rem; /* 保持一致 */
+  }
+  .about-content h3 {
+    font-size: 1.4rem;
+  }
+  .team-division li {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-row.nutrition-row {
+    grid-template-columns: 1fr;
+  }
+  #time-histogram, #scatter-plot {
+    width: 100%;
+  }
+  .controls-row {
+    gap: 1rem;
+  }
+  h2 {
+    font-size: 2rem; /* 全局 h2 在小屏幕上的调整 */
+  }
+}
+
+@media (max-width: 480px) {
+  .chart h2 {
+    font-size: 1rem;
+  }
+  .chart p {
+    font-size: 0.8rem;
+  }
+  .chart.small {
+    min-width: 45%;
+    height: 110px;
   }
 }

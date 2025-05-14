@@ -414,26 +414,31 @@ d3.csv("added_food.csv", row => {
 
   function createPersonSelect() {
     const container = d3.select('#subject-select .dc-chart');
+    const select = container.select('select').empty()
+      ? container.append('select').attr('id', 'subjectSelect').attr('class', 'form-select')
+      : container.select('select');
+    
     const persons = [...new Set(allData.map(d => d.person))].sort();
-    const select = container.append('select').attr('id', 'subjectSelect')
-      .on('change', () => {
-        filters.person = d3.select('#subjectSelect').property('value') || null;
-        updateCharts();
-        updateScatterChart();
-      });
-
+    select.on('change', () => {
+      filters.person = select.property('value') || null;
+      updateCharts();
+      updateScatterChart();
+    });
+  
     select.append('option').attr('value', '').text('All');
     select.selectAll('option.person')
       .data(persons)
       .enter()
       .append('option')
-      .attr("value", d => d)
+      .attr('value', d => d)
       .text(d => d);
   }
 
   function createCountDisplay() {
     const container = d3.select('#total-count .dc-chart');
-    const span = container.append('span');
+    const span = container.select('span').empty()
+      ? container.append('span')
+      : container.select('span');
     return {
       update: () => span.text(filterData().length)
     };

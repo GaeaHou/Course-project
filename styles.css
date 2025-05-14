@@ -1,3 +1,96 @@
+/* 第一行控件样式 */
+.controls-row {
+  width: 100%; /* 占满父容器（#charts 的95%） */
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.chart.small {
+  min-width: 200px; /* 最小宽度，确保控件不过于狭窄 */
+  max-width: 250px; /* 最大宽度，适配不同屏幕 */
+  width: 100%; /* 自适应 */
+  height: 130px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+}
+
+.dc-chart {
+  width: 95%; /* 控件占卡片宽度的95% */
+  margin: 0 auto; /* 居中 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.form-select {
+  width: 100%; /* 占满 .dc-chart 宽度 */
+  max-width: 200px; /* 限制最大宽度，确保一致性 */
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+  background-color: #f9f9f9;
+  transition: border-color 0.3s;
+  appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%23333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 0.7rem center;
+  background-size: 1.2rem;
+}
+
+.form-select:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+#total-count .dc-chart {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* 确保 #charts 容器宽度为95% */
+#charts {
+  width: 95%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .controls-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  .chart.small {
+    max-width: 300px; /* 小屏幕下放宽最大宽度 */
+  }
+  .form-select {
+    max-width: 250px; /* 小屏幕下稍宽 */
+  }
+}
+
+@media (max-width: 480px) {
+  .chart.small {
+    max-width: 100%; /* 超小屏幕占满宽度 */
+    min-width: 0;
+  }
+  .form-select {
+    max-width: 100%;
+  }
+}
 /* ==================== */
 /* ==== BASE STYLES ==== */
 /* ==================== */
@@ -104,6 +197,10 @@ h2 {
   gap: var(--chart-gap);
   margin-bottom: 1.5rem;
   justify-items: center;
+  justify-content: center;       /* 新增：让整个 grid 居中 */
+  max-width: 1000px;             /* 可选：限制最大宽度 */
+  margin-left: auto;             /* 使其居中 */
+  margin-right: auto;
 }
 
 #time-histogram {

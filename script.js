@@ -318,6 +318,7 @@ d3.csv("added_food.csv", row => {
       if (event.type === "start") {
         allCircles.classed("selected", false);
         wasBrushed = false;
+        d3.select("#food-list").text("None"); // 刷选开始时清空食物列表
       }
       if (selection) {
         wasBrushed = true;
@@ -327,17 +328,23 @@ d3.csv("added_food.csv", row => {
           const cy = y(d.grow_in_glu);
           return cx >= x0 && cx <= x1 && cy >= y0 && cy <= y1;
         });
-  
+    
         const selectedData = filtered.filter(d => {
           const cx = x(d[selectedNutrient]);
           const cy = y(d.grow_in_glu);
           return cx >= x0 && cx <= x1 && cy >= y0 && cy <= y1;
         });
-  
+    
+        // 提取选中点的 logged_food
+        const selectedFoods = selectedData.map(d => d.logged_food).filter(food => food && food !== "Unknown");
+        const foodText = selectedFoods.length > 0 ? selectedFoods.join(", ") : "None";
+        d3.select("#food-list").text(foodText);
+    
         highlightHistogramsFromScatter(selectedData);
       } else {
         allCircles.classed("selected", false);
         wasBrushed = false;
+        d3.select("#food-list").text("None"); // 刷选清除时清空食物列表
         clearHistogramHighlighting();
       }
     }
@@ -350,6 +357,7 @@ d3.csv("added_food.csv", row => {
         brush.call(brushBehavior.move, null);
         allCircles.classed("selected", false);
         wasBrushed = false;
+        d3.select("#food-list").text("None"); // 清空食物列表
         clearHistogramHighlighting();
       }
     });
@@ -526,7 +534,6 @@ d3.csv("added_food.csv", row => {
   
     // 清除所有刷选区域
     d3.selectAll('.brush').call(function (selection) {
-      // 直接调用已绑定的刷选行为（无论是 brush 或 brushX）
       selection.each(function () {
         const brush = d3.brushSelection(this) ? d3.brush() : d3.brushX();
         d3.select(this).call(brush.move, null);
@@ -539,6 +546,9 @@ d3.csv("added_food.csv", row => {
   
     // 清除高亮/淡出效果
     clearHistogramHighlighting();
+  
+    // 清空食物列表
+    d3.select("#food-list").text("None");
   });
 
   d3.select("#nutrientSelect").on("change", updateScatterChart);

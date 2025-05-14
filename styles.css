@@ -486,3 +486,75 @@ footer {
     height: 110px;
   }
 }
+/* ==================== */
+/* === SCATTER ROW LAYOUT === */
+.chart-row.scatter-row {
+  display: grid;
+  grid-template-columns: 70% 28%; /* 散点图占70%，食物列表占28% */
+  gap: 2%;
+  width: 92%; /* 控制整行宽度为页面92% */
+  margin: 0 auto 1.5rem; /* 居中并添加底部间距 */
+  align-items: stretch; /* 等高对齐 */
+}
+
+/* 散点图容器调整 */
+#scatter-plot {
+  width: 100%; /* 占满分配的70% */
+  height: 500px;
+  margin: 0; /* 移除原有margin */
+}
+
+/* 食物列表容器样式 */
+#food-list-container {
+  width: 100%; /* 占满分配的28% */
+  height: 500px; /* 与散点图等高 */
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  padding: 1.2rem;
+  overflow-y: auto;
+}
+
+/* 标题样式调整 */
+#scatter-plot h2,
+#food-list-container h2 {
+  font-size: 1.1rem;
+  margin-bottom: 0.8rem;
+  text-align: center;
+  color: #34495e;
+}
+
+/* 响应式调整 */
+@media (max-width: 1200px) {
+  .chart-row.scatter-row {
+    grid-template-columns: 60% 38%; /* 中屏幕微调比例 */
+    gap: 2%;
+  }
+}
+
+@media (max-width: 992px) {
+  .chart-row.scatter-row {
+    grid-template-columns: 1fr;
+    width: 95%;
+  }
+  
+  #scatter-plot,
+  #food-list-container {
+    width: 100%;
+    height: auto;
+  }
+  
+  #scatter-plot {
+    min-height: 400px;
+  }
+  
+  #food-list-container {
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-row.scatter-row {
+    width: 92%;
+  }
+}

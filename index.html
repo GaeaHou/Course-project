@@ -43,11 +43,11 @@
           <summary class="cursor-pointer text-blue-600 font-medium">📊 Peek at Our Processed Data</summary>
           <div style="background: #f9f9f9; padding: 1rem; border-radius: 8px; margin-top: 0.5rem;">
             <pre style="font-size: 0.9rem;">
-time_begin,person,logged_food,total_carb,protein_g,fat_g,sugar_g,fiber_g,calorie,grow_in_glu
-2023-01-15 08:30:00,P01,Oatmeal with Berries,45.2,8.1,5.3,12.4,6.2,280,25.6
-2023-01-15 12:15:00,P02,Grilled Chicken Salad,15.8,22.4,10.2,3.1,4.8,320,18.3
+              time_begin,person,logged_food,total_carb,protein,total_fat,sugar,dietary_fiber,calorie,grow_in_glu
+              2020-02-13 18:00:00,001,Berry Smoothie,85.0,16.0,3.3,83.0,1.7,456.0,168.0
+              2020-02-14 07:10:00,001,Natrel Lactose Free 2 Percent, Standard Breakfast,35.0,13.0,0.0,18.0,0.0,230.0,53.0
             </pre>
-            <p style="font-style: italic; color: #666;">This snapshot shows cleaned meal data with nutrient details and glucose increase (grow_in_glu).</p>
+            <p style="font-style: italic; color: #666;">This snapshot shows cleaned meal data with nutrient details and glucose increase (grow_in_glu) for participant 001.</p>
           </div>
         </details>
       </div>
@@ -94,12 +94,12 @@ time_begin,person,logged_food,total_carb,protein_g,fat_g,sugar_g,fiber_g,calorie
         <p class="text-gray-600 max-w-3xl mx-auto mb-4">
           Our platform is designed for intuitive exploration. Here’s how you can dive in:
         </p>
-        <ul class="text-gray-600 max-w-3xl mx-auto list-disc pl-6">
-          <li><strong>Filter by Participant</strong>: Use the dropdown to focus on a participant’s data.</li>
-          <li><strong>Toggle Nutrients</strong>: Switch between sugar and carbohydrate in the scatter plot.</li>
-          <li><strong>Brush to Highlight</strong>: Brush the scatter plot to highlight nutrient ranges in histograms, or brush histograms to filter the scatter plot.</li>
-          <li><strong>Hover for Details</strong>: Hover over scatter plot points to view nutrient data in tooltips.</li>
-          <li><strong>Reset Filters</strong>: Clear selections with the “Reset” button.</li>
+        <ul class="text-gray-600 max-w-3xl mx-auto list-none pl-6" style="position: relative;">
+          <li style="position: relative; padding-left: 1.5rem;"><strong>Filter by Participant</strong>: Use the dropdown to focus on a participant’s data.</li>
+          <li style="position: relative; padding-left: 1.5rem;"><strong>Toggle Nutrients</strong>: Switch between sugar and carbohydrate in the scatter plot.</li>
+          <li style="position: relative; padding-left: 1.5rem;"><strong>Brush to Highlight</strong>: Brush the scatter plot to highlight nutrient ranges in histograms, or brush histograms to filter the scatter plot.</li>
+          <li style="position: relative; padding-left: 1.5rem;"><strong>Hover for Details</strong>: Hover over scatter plot points to view nutrient data in tooltips.</li>
+          <li style="position: relative; padding-left: 1.5rem;"><strong>Reset Filters</strong>: Clear selections with the “Reset” button.</li>
         </ul>
         <div style="background: #e6f3ff; padding: 1rem; border-radius: 8px; margin-top: 1rem; max-width: 768px; margin-left: auto; margin-right: auto;">
           <p style="font-size: 0.9rem; color: #34495e;">
@@ -229,20 +229,21 @@ time_begin,person,logged_food,total_carb,protein_g,fat_g,sugar_g,fiber_g,calorie
           </p>
         </div>
 
-        <h3>Team Contributions</h3>
+        <h3 class="text-xl font-semibold mt-6 mb-4">Team Contributions</h3>
+        <p class="text-gray-600 mb-4">Below is the work split among our team members:</p>
         <div class="team-division">
-          <p>Below is the work split among our team members:</p>
-          <ul>
-            <li><strong>Wanting Li</strong>: Designed the scatter plot visualization, enabling interactive exploration of nutrient impacts on glucose response.</li>
-            <li><strong>Xuebing Hou</strong>: Orchestrated the integration of the complete interactive visualization and built the overall webpage structure.</li>
-            <li><strong>Jingxuan Sun</strong>: Developed the histogram visualizations, providing insights into nutrient distributions and meal timing.</li>
-            <li><strong>Po-Chen Lin</strong>: Led the exploration of the BIG IDEAs Lab Glycemic Variability and Wearable Device Data, and handled data cleaning to ensure high-quality datasets.</li>
-            <li><strong>All Members</strong>: Contributed to the exploration of the Korea surgery dataset, enriching our understanding of glycemic responses in diverse contexts.</li>
+          <ul class="text-gray-600 list-disc pl-6">
+            <li><strong>Wanting Li</strong>: Designed the scatter plot visualization, enabling interactive exploration of nutrient impacts on glucose response (8 hours).</li>
+            <li><strong>Xuebing Hou</strong>: Orchestrated the integration of the complete interactive visualization and built the overall webpage structure (12 hours).</li>
+            <li><strong>Jingxuan Sun</strong>: Developed the histogram visualizations, providing insights into nutrient distributions and meal timing (8 hours).</li>
+            <li><strong>Po-Chen Lin</strong>: Led the exploration of the BIG IDEAs Lab Glycemic Variability and Wearable Device Data, and handled data cleaning to ensure high-quality datasets (9 hours).</li>
+            <li><strong>All Members</strong>: Contributed to the exploration of the Korea surgery dataset, enriching our understanding of glycemic responses in diverse contexts, and initial data extraction (6 hours).</li>
           </ul>
         </div>
       </div>
     </div>
   </section>
+
   <!-- 页脚 -->
   <footer class="bg-blue-600 text-white py-6">
     <div class="container mx-auto text-center">

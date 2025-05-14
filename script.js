@@ -508,14 +508,27 @@ d3.csv("added_food.csv", row => {
   updateCharts();
   updateScatterChart();
 
-  d3.select('#reset-filters').on('click', () => {
+  d3.select('#resetFiltersBtn').on('click', () => {
+    // 清空所有过滤器
     Object.keys(filters).forEach(k => filters[k] = null);
+  
+    // 重置 Participant 下拉框
     d3.select('#subjectSelect').property('value', '');
-    d3.selectAll('.brush').each(function () {
-      d3.select(this).call(d3.brushX().move, null);
+  
+    // 清除所有刷选区域
+    d3.selectAll('.brush').call(function (selection) {
+      // 直接调用已绑定的刷选行为（无论是 brush 或 brushX）
+      selection.each(function () {
+        const brush = d3.brushSelection(this) ? d3.brush() : d3.brushX();
+        d3.select(this).call(brush.move, null);
+      });
     });
+  
+    // 更新图表
     updateCharts();
     updateScatterChart();
+  
+    // 清除高亮/淡出效果
     clearHistogramHighlighting();
   });
 

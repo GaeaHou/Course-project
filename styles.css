@@ -1,3 +1,40 @@
+/* 原样式 */
+#scatter-plot {
+  width: 100%;
+  max-width: 600px;
+  min-height: 300px;
+  height: auto;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 修改后，移除 max-width 或增加到更高值 */
+#scatter-plot {
+  width: 100%;
+  /* max-width: 600px; 注释或移除 */
+  max-width: 800px; /* 可选：增加到800px，视数据范围调整 */
+  min-height: 300px;
+  height: auto;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 确保SVG自适应 */
+#scatter-plot .dc-chart svg {
+  width: 100%;
+  height: auto;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  #scatter-plot {
+    width: 100%;
+    max-width: 100%; /* 小屏幕下无上限 */
+    min-height: 250px;
+  }
+}
 /* 第一行控件样式 */
 .controls-row {
   width: 100%; /* 占满父容器（#charts 的95%） */

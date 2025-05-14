@@ -138,14 +138,24 @@ d3.csv("added_food.csv", row => {
     const container = d3.select("#scatter-plot .dc-chart");
     if (!container.node()) return;
   
+    // 获取容器宽度
+    const containerWidth = container.node().clientWidth;
+    // 动态计算最小高度，确保包含所有数据点
+    const minHeight = 300; // 最小高度
+    const aspectRatio = 2 / 3; // 宽高比
+    const baseHeight = containerWidth * aspectRatio;
+    const height = Math.max(minHeight, baseHeight); // 取较大值
+  
     let svg = container.select("svg");
     if (svg.empty()) {
-      svg = container.append("svg").attr("width", 600).attr("height", 400);
+      svg = container.append("svg").attr("width", containerWidth).attr("height", height);
+    } else {
+      svg.attr("width", containerWidth).attr("height", height);
     }
   
     const marginScatter = { top: 40, right: 30, bottom: 60, left: 60 };
-    const width = +svg.attr("width") - marginScatter.left - marginScatter.right;
-    const height = +svg.attr("height") - marginScatter.top - marginScatter.bottom;
+    const plotWidth = containerWidth - marginScatter.left - marginScatter.right;
+    const plotHeight = height - marginScatter.top - marginScatter.bottom;
   
     let g = svg.select("g.scatter-group");
     if (g.empty()) {
@@ -170,67 +180,71 @@ d3.csv("added_food.csv", row => {
         .attr("dy", "1.2em")
         .attr("dx", "0.5em");
     }
-
+  
     const tooltip = g.select(".tooltip");
     const tooltipBg = tooltip.select("rect");
     const tooltipText = tooltip.select("text");
   
     let xAxisGroup = g.select(".x-axis");
     if (xAxisGroup.empty()) {
-      xAxisGroup = g.append("g").attr("class", "x-axis").attr("transform", `translate(0,${height})`);
+      xAxisGroup = g.append("g").attr("class", "x-axis").attr("transform", `translate(0,${plotHeight})`);
     }
   
     let yAxisGroup = g.select(".y-axis");
     if (yAxisGroup.empty()) {
       yAxisGroup = g.append("g").attr("class", "y-axis");
     }
-
+  
     const selectedPerson = d3.select("#subjectSelect").property("value") || null;
     const selectedNutrient = d3.select("#nutrientSelect").property("value") || "sugar";
-
+  
     const filtered = filterData().filter(d => (!selectedPerson || d.person === selectedPerson) && !isNaN(d[selectedNutrient]) && !isNaN(d.grow_in_glu));
-
+  
     filtered.sort((a, b) => d3.descending(a.total_fat, b.total_fat));
-
+  
+    // 动态扩展X轴域，增加20%缓冲以确保标签和数据点完全显示
+    const xExtent = d3.extent(filtered, d => d[selectedNutrient]);
+    const xPadding = (xExtent[1] - xExtent[0]) * 0.2; // 20% 缓冲
+    const xDomain = [Math.max(0, xExtent[0] - xPadding), xExtent[1] + xPadding];
     const x = d3.scaleLinear()
-      .domain(d3.extent(filtered, d => d[selectedNutrient])).nice()
-      .range([0, width]);
-
+      .domain(xDomain).nice()
+      .range([0, plotWidth]);
+  
     const y = d3.scaleLinear()
       .domain(d3.extent(filtered, d => d.grow_in_glu)).nice()
-      .range([height, 0]);
-
+      .range([plotHeight, 0]);
+  
     const r = d3.scaleSqrt()
       .domain(d3.extent(filtered, d => d.total_fat))
       .range([2, 10]);
-
+  
     xAxisGroup.transition().call(d3.axisBottom(x));
     yAxisGroup.transition().call(d3.axisLeft(y));
-
+  
     g.select(".x-axis-label").remove();
     g.append("text")
       .attr("class", "x-axis-label")
       .attr("text-anchor", "middle")
-      .attr("x", width / 2)
-      .attr("y", height + marginScatter.bottom - 10)
+      .attr("x", plotWidth / 2)
+      .attr("y", plotHeight + marginScatter.bottom - 10)
       .text(selectedNutrient === "sugar" ? "Sugar (g)" : "Total Carbohydrate (g)");
-
+  
     g.select(".y-axis-label").remove();
     g.append("text")
       .attr("class", "y-axis-label")
       .attr("text-anchor", "middle")
       .attr("transform", "rotate(-90)")
-      .attr("x", -height / 2)
+      .attr("x", -plotHeight / 2)
       .attr("y", -marginScatter.left + 20)
       .text("Glucose Increase (mg/dL)");
-
+  
     const circles = g.selectAll("circle").data(filtered, d => d.time_begin + (d.group_id || ""));
     circles.exit().transition().attr("r", 0).remove();
     circles.transition()
       .attr("cx", d => x(d[selectedNutrient]))
       .attr("cy", d => y(d.grow_in_glu))
       .attr("r", d => r(d.total_fat));
-
+  
     const allCircles = circles.enter().append("circle")
       .attr("cx", d => x(d[selectedNutrient]))
       .attr("cy", d => y(d.grow_in_glu))
@@ -247,7 +261,6 @@ d3.csv("added_food.csv", row => {
           `Glucose Δ: ${d.grow_in_glu.toFixed(1)}mg/dL`
         ];
         
-        // 更新工具提示内容
         tooltipText.selectAll("tspan").remove();
         textLines.forEach((line, i) => {
           tooltipText.append("tspan")
@@ -256,7 +269,6 @@ d3.csv("added_food.csv", row => {
             .text(line);
         });
         
-        // 计算文本尺寸并调整背景
         const bbox = tooltipText.node().getBBox();
         const padding = { top: 5, right: 8, bottom: 5, left: 8 };
         tooltipBg
@@ -265,12 +277,10 @@ d3.csv("added_food.csv", row => {
           .attr("x", bbox.x - padding.left)
           .attr("y", bbox.y - padding.top);
         
-        // 定位工具提示组（数据点右上方）
         let tooltipX = x(d[selectedNutrient]) + 15;
         let tooltipY = y(d.grow_in_glu) - bbox.height - padding.top - padding.bottom - 5;
         
-        // 边界检查：确保工具提示在图表区域内
-        if (tooltipX + bbox.width + padding.left + padding.right > width) {
+        if (tooltipX + bbox.width + padding.left + padding.right > plotWidth) {
           tooltipX = x(d[selectedNutrient]) - bbox.width - padding.left - padding.right - 15;
         }
         if (tooltipY < 0) {
@@ -280,30 +290,29 @@ d3.csv("added_food.csv", row => {
         tooltip
           .attr("transform", `translate(${tooltipX},${tooltipY})`)
           .style("opacity", 1);
-
-        // 确保工具提示在最上层
+  
         tooltip.raise();
       })
       .on("mouseout", function() {
         tooltip.style("opacity", 0);
       })
       .merge(circles);
-
+  
     let brush = g.select(".brush");
     if (brush.empty()) {
       brush = g.append("g")
         .attr("class", "brush")
         .lower();
     }
-
+  
     const brushBehavior = d3.brush()
-      .extent([[0, 0], [width, height]])
+      .extent([[0, 0], [plotWidth, plotHeight]])
       .on("start brush end", brushed);
-
+  
     brush.call(brushBehavior);
-
+  
     let wasBrushed = false;
-
+  
     function brushed(event) {
       const selection = event.selection;
       if (event.type === "start") {
@@ -318,13 +327,13 @@ d3.csv("added_food.csv", row => {
           const cy = y(d.grow_in_glu);
           return cx >= x0 && cx <= x1 && cy >= y0 && cy <= y1;
         });
-
+  
         const selectedData = filtered.filter(d => {
           const cx = x(d[selectedNutrient]);
           const cy = y(d.grow_in_glu);
           return cx >= x0 && cx <= x1 && cy >= y0 && cy <= y1;
         });
-
+  
         highlightHistogramsFromScatter(selectedData);
       } else {
         allCircles.classed("selected", false);
@@ -332,7 +341,7 @@ d3.csv("added_food.csv", row => {
         clearHistogramHighlighting();
       }
     }
-
+  
     svg.on("click", (event) => {
       if (event.target.tagName === "circle" || event.target.classList.contains("selection")) {
         return;
